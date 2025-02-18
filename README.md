@@ -1,13 +1,16 @@
 # ResumeInsight
 
-ResumeInsight is an AI-powered resume screening tool that analyzes and ranks resumes based on job descriptions. It utilizes NLP techniques to extract relevant information from resumes and compare them to job requirements.
+ResumeInsight is a console-based and web-based AI resume screening tool that ranks resumes based on their relevance to a given job description. Using NLP, TF-IDF, and cosine similarity, this tool helps recruiters and hiring managers quickly identify the most relevant candidates.
 
 ## Features
 
 - Parses resumes in PDF and DOCX formats
+- Two Modes: Console & Web UI – Use via the terminal or a browser-based interface with Streamlit
 - Extracts key information like skills, experience, and education
 - Uses NLP to rank candidates based on job descriptions
 - Provides insights into resume relevance
+- Performance Optimization with Watchdog – Monitors file changes for efficient reloading
+- Downloadable CSV Reports – Export ranked results for easy review
 
 ## Installation
 
@@ -27,15 +30,15 @@ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
 pip install -r requirements.txt
 ```
 
-## Usage
-
-1. Place resumes in the ```resumes/``` directory.
-
-2. Run the script with a job description:
+### Run the Console Version
 ```bash
-python resume_insight.py --job "Software Engineer with Python and ML experience"
+python main.py
 ```
-3. View ranked candidates in the output.
+
+### Run the Web App
+```bash
+streamlit run app.py
+```
 
 ## Dependencies
 
@@ -43,6 +46,8 @@ python resume_insight.py --job "Software Engineer with Python and ML experience"
 - pdfminer.six (for extracting text from PDFs)
 - spacy (for NLP processing)
 - numpy & pandas (for data handling)
+- Streamlit – For interactive web-based UI
+- Watchdog – For performance optimization and real-time file monitoring
 
 ## Contributing
 
