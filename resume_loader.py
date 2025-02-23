@@ -2,9 +2,6 @@ import os
 import PyPDF2
 import docx
 
-# Path to the resumes folder
-RESUME_DIR = "resumes"
-
 def extract_text_from_pdf(pdf_path):
     """Extract text from a PDF file."""
     text = ""
@@ -19,22 +16,34 @@ def extract_text_from_docx(docx_path):
     doc = docx.Document(docx_path)
     return "\n".join([para.text for para in doc.paragraphs]).strip()
 
-def load_resumes():
-    """Load and extract text from all resumes in the 'resumes' folder."""
+def load_resumes(uploaded_files=None, from_directory=False, resume_dir="resumes"):
     resumes = {}
-    
-    for filename in os.listdir(RESUME_DIR):
-        file_path = os.path.join(RESUME_DIR, filename)
-        
-        if filename.endswith(".pdf"):
-            resumes[filename] = extract_text_from_pdf(file_path)
-        elif filename.endswith(".docx"):
-            resumes[filename] = extract_text_from_docx(file_path)
-    
+
+    if uploaded_files:
+        # Streamlit: Read uploaded files
+        for file in uploaded_files:
+            file_name = file.name
+            file_bytes = file.read()
+
+            if file_name.endswith(".pdf"):
+                resumes[file_name] = extract_text_from_pdf(file_bytes)
+            elif file_name.endswith(".docx"):
+                resumes[file_name] = extract_text_from_docx(file_bytes)
+
+    elif from_directory:
+        # CLI: Read from the "resumes/" folder
+        for filename in os.listdir(resume_dir):
+            file_path = os.path.join(resume_dir, filename)
+            if filename.endswith(".pdf"):
+                with open(file_path, "rb") as f:
+                    resumes[filename] = extract_text_from_pdf(f)
+            elif filename.endswith(".docx"):
+                resumes[filename] = extract_text_from_docx(file_path)
+
     return resumes
 
 if __name__ == "__main__":
-    all_resumes = load_resumes()
+    all_resumes = load_resumes(from_directory=True)
     
     for name, content in all_resumes.items():
         print(f"\n===== {name} =====")

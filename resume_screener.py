@@ -31,7 +31,7 @@ if uploaded_files and job_description:
 
     # Load and process resumes
     resumes = {file.name: file.read() for file in uploaded_files}  
-    processed_resumes = load_resumes(resumes)  
+    processed_resumes = uploaded_files(uploaded_files=resumes)  
 
     # Rank resumes
     ranked_resumes = rank_resumes(job_description, processed_resumes)
