@@ -22,9 +22,9 @@ uploaded_files = st.file_uploader("📂 Upload resumes (PDF or DOCX)", type=["pd
 # Function to highlight keywords in text
 def highlight_keywords(text, keywords):
     """Highlights keywords in text with blue color, ensuring whole word matches only."""
-    for keyword in sorted(keywords, key=len, reverse=True):  # Sort to prioritize longer words first
-        text = re.sub(rf'\b{re.escape(keyword)}\b', 
-                      rf'<span style="color:blue; font-weight:bold">\1</span>', 
+    for keyword in sorted(keywords, key=len, reverse=True):  # Prioritize longer words first
+        text = re.sub(rf'\b{re.escape(keyword)}\b',  
+                      rf'<span style="color:blue; font-weight:bold">{keyword}</span>',  
                       text, flags=re.IGNORECASE)
     return text
 
