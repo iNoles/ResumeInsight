@@ -19,35 +19,34 @@ with st.sidebar:
 # File uploader for resumes
 uploaded_files = st.file_uploader("📂 Upload resumes (PDF or DOCX)", type=["pdf", "docx"], accept_multiple_files=True)
 
-# Function to extract only relevant keywords (excluding common words)
-def extract_relevant_keywords(job_description):
-    """Extracts relevant technical skills and terms from the job description."""
-    common_words = {
-        "and", "or", "the", "to", "of", "in", "with", "for", "a", "your", "must", "have", 
-        "years", "experience", "as", "on", "by", "at", "an", "is", "that", "this", "are"
-    }  # Expand this list if needed
-    words = set(job_description.lower().split())
-    return {word for word in words if word not in common_words and len(word) > 2}
+# Function to extract meaningful keywords from job description
+def extract_keywords(text):
+    """Extracts relevant keywords from job description while filtering out common words."""
+    common_words = {"and", "or", "the", "of", "a", "to", "for", "with", "in", "on", "by", "an", "at", "as", "this", "is"}
+    words = re.findall(r"\b[a-zA-Z0-9#.+-]+\b", text.lower())  # Extract words and keep programming terms
+    filtered_keywords = {word for word in words if word not in common_words}
+    return filtered_keywords
 
-# Function to highlight keywords in text
+# Function to highlight only matching keywords in the resume summary
 def highlight_keywords(text, keywords):
-    """Highlights matching keywords in text using blue color."""
-    for keyword in sorted(keywords, key=len, reverse=True):  # Sort to avoid substring conflicts
-        text = re.sub(f"(?i)\\b{re.escape(keyword)}\\b", r'<span style="color:blue; font-weight:bold">\g<0></span>', text)
+    """Highlights only relevant keywords in resume summaries."""
+    for keyword in sorted(keywords, key=len, reverse=True):  # Sort to avoid partial overlaps
+        text = re.sub(f"(?i)\\b{re.escape(keyword)}\\b", 
+                      rf'<span style="color:blue; font-weight:bold">{keyword}</span>', text)
     return text
 
 if uploaded_files and job_description:
     st.write("🔍 **Processing Resumes...**")
 
-    # Extract relevant keywords from job description
-    job_keywords = extract_relevant_keywords(job_description)
-    st.write("🔹 **Filtered Keywords for Matching:**", ", ".join(job_keywords))  # Debugging output
+    # Load resumes
+    processed_resumes = load_resumes(uploaded_files=uploaded_files)  
 
-    # Load and process resumes
-    processed_resumes = load_resumes(uploaded_files=uploaded_files)
-
-    # Rank resumes based on job description
+    # Rank resumes
     ranked_resumes = rank_resumes(job_description, processed_resumes)
+
+    # Extract filtered keywords from job description
+    job_keywords = extract_keywords(job_description)
+    st.write("🔹 **Filtered Keywords for Matching:**", ", ".join(sorted(job_keywords)))
 
     # Convert results to DataFrame
     results_df = pd.DataFrame(ranked_resumes, columns=["Resume Name", "Score"])
@@ -62,7 +61,9 @@ if uploaded_files and job_description:
     # Summary of selected top resumes with highlighted keywords
     st.subheader(f"🏆 Summary of Top {top_n} Resumes")
     for i, (name, score) in enumerate(ranked_resumes[:top_n], 1):
-        highlighted_text = highlight_keywords(processed_resumes[name][:500], job_keywords)
+        summary_text = processed_resumes[name][:500]  # Limit summary length
+        highlighted_text = highlight_keywords(summary_text, job_keywords)
+        
         st.markdown(f"**{i}. {name}** - Score: `{score:.4f}`", unsafe_allow_html=True)
         st.markdown(f"📜 **Key Details:** {highlighted_text}...", unsafe_allow_html=True)
 
