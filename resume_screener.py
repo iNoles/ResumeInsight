@@ -21,9 +21,10 @@ uploaded_files = st.file_uploader("📂 Upload resumes (PDF or DOCX)", type=["pd
 
 # Function to extract meaningful keywords from job description
 def extract_keywords(text):
-    """Extracts relevant keywords from job description while filtering out common words."""
-    common_words = {"and", "or", "the", "of", "a", "to", "for", "with", "in", "on", "by", "an", "at", "as", "this", "is"}
-    words = re.findall(r"\b[a-zA-Z0-9#.+-]+\b", text.lower())  # Extract words and keep programming terms
+    """Extracts relevant keywords from job description while filtering out common words and numbers."""
+    common_words = {"and", "or", "the", "of", "a", "to", "for", "with", "in", "on", "by", "an", "at", "as", "this", "is",
+                    "must", "your", "have", "any", "within", "such", "required", "understanding", "determined", "time"}
+    words = re.findall(r"\b[a-zA-Z#.+-]{3,}\b", text.lower())  # Extract words with 3+ characters and keep tech terms
     filtered_keywords = {word for word in words if word not in common_words}
     return filtered_keywords
 
