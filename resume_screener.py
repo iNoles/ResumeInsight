@@ -33,7 +33,7 @@ def extract_relevant_keywords(job_description):
 def highlight_keywords(text, keywords):
     """Highlights matching keywords in text using blue color."""
     for keyword in sorted(keywords, key=len, reverse=True):  # Sort to avoid substring conflicts
-        text = re.sub(f"(?i)\\b{re.escape(keyword)}\\b", r'<span style="color:blue; font-weight:bold">\1</span>', text)
+        text = re.sub(f"(?i)\\b{re.escape(keyword)}\\b", r'<span style="color:blue; font-weight:bold">\g<0></span>', text)
     return text
 
 if uploaded_files and job_description:
