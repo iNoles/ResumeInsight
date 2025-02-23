@@ -29,14 +29,13 @@ def highlight_keywords(text, keywords):
 if uploaded_files and job_description:
     st.write("🔍 **Processing Resumes...**")
 
-    # Load and process resumes
-    resumes = {file.name: file.read() for file in uploaded_files}  
-    processed_resumes = uploaded_files(uploaded_files=resumes)  
+    # Load and process resumes correctly
+    processed_resumes = load_resumes(uploaded_files=uploaded_files)  
 
     # Rank resumes
     ranked_resumes = rank_resumes(job_description, processed_resumes)
 
-    # Extract keywords from job description (split into words)
+    # Extract keywords from job description
     job_keywords = set(job_description.lower().split())
 
     # Convert results to DataFrame
@@ -46,7 +45,7 @@ if uploaded_files and job_description:
     st.subheader("🔹 Resume Ranking Results")
     st.dataframe(results_df.style.format({"Score": "{:.4f}"}))
 
-    # User chooses how many top resumes to display
+    # User selects number of top resumes to display
     top_n = st.slider("📊 Select number of top resumes to summarize:", 1, len(ranked_resumes), 3)
 
     # Summary of selected top resumes with highlighted keywords
@@ -54,7 +53,7 @@ if uploaded_files and job_description:
     for i, (name, score) in enumerate(ranked_resumes[:top_n], 1):
         highlighted_text = highlight_keywords(processed_resumes[name][:500], job_keywords)
         st.markdown(f"**{i}. {name}** - Score: `{score:.4f}`", unsafe_allow_html=True)
-        st.markdown(f"📜 **Key Details:** {highlighted_text}...", unsafe_allow_html=True)  # Allow HTML formatting
+        st.markdown(f"📜 **Key Details:** {highlighted_text}...", unsafe_allow_html=True)
 
     # Allow users to download results as CSV
     st.subheader("📥 Download Results")
