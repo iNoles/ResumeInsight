@@ -19,26 +19,35 @@ with st.sidebar:
 # File uploader for resumes
 uploaded_files = st.file_uploader("📂 Upload resumes (PDF or DOCX)", type=["pdf", "docx"], accept_multiple_files=True)
 
+# Function to extract only relevant keywords (excluding common words)
+def extract_relevant_keywords(job_description):
+    """Extracts relevant technical skills and terms from the job description."""
+    common_words = {
+        "and", "or", "the", "to", "of", "in", "with", "for", "a", "your", "must", "have", 
+        "years", "experience", "as", "on", "by", "at", "an", "is", "that", "this", "are"
+    }  # Expand this list if needed
+    words = set(job_description.lower().split())
+    return {word for word in words if word not in common_words and len(word) > 2}
+
 # Function to highlight keywords in text
 def highlight_keywords(text, keywords):
-    """Highlights keywords in text with blue color, ensuring whole word matches."""
-    for keyword in sorted(keywords, key=len, reverse=True):  # Prioritize longer words first
-        pattern = rf'(?<!\w){re.escape(keyword)}(?!\w)'  # Ensures it's not part of another word
-        replacement = rf'<span style="color:blue; font-weight:bold">{keyword}</span>'
-        text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
+    """Highlights matching keywords in text using blue color."""
+    for keyword in sorted(keywords, key=len, reverse=True):  # Sort to avoid substring conflicts
+        text = re.sub(f"(?i)\\b{re.escape(keyword)}\\b", r'<span style="color:blue; font-weight:bold">\1</span>', text)
     return text
 
 if uploaded_files and job_description:
     st.write("🔍 **Processing Resumes...**")
 
-    # Load and process resumes correctly
-    processed_resumes = load_resumes(uploaded_files=uploaded_files)  
+    # Extract relevant keywords from job description
+    job_keywords = extract_relevant_keywords(job_description)
+    st.write("🔹 **Filtered Keywords for Matching:**", ", ".join(job_keywords))  # Debugging output
 
-    # Rank resumes
+    # Load and process resumes
+    processed_resumes = load_resumes(uploaded_files=uploaded_files)
+
+    # Rank resumes based on job description
     ranked_resumes = rank_resumes(job_description, processed_resumes)
-
-    # Extract keywords from job description
-    job_keywords = set(job_description.lower().split())
 
     # Convert results to DataFrame
     results_df = pd.DataFrame(ranked_resumes, columns=["Resume Name", "Score"])
