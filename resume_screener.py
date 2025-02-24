@@ -23,18 +23,34 @@ uploaded_files = st.file_uploader("📂 Upload resumes (PDF or DOCX)", type=["pd
 def extract_keywords(text):
     """Extracts relevant keywords from job description while filtering out common words and numbers."""
     common_words = {"and", "or", "the", "of", "a", "to", "for", "with", "in", "on", "by", "an", "at", "as", "this", "is",
-                    "must", "your", "have", "any", "within", "such", "required", "understanding", "determined", "time"}
-    words = re.findall(r"\b[a-zA-Z#.+-]{3,}\b", text.lower())  # Extract words with 3+ characters and keep tech terms
-    filtered_keywords = {word for word in words if word not in common_words}
+                    "must", "your", "have", "any", "within", "such", "required", "understanding", "determined", "time",
+                    "details", "address", "city", "state", "name", "phone", "email", "skills", "education", "experience", "resume", "years"}
+
+    # Clean and remove personal details like address, phone numbers, emails, etc.
+    cleaned_text = re.sub(r"\d{1,5}\s\w+(\s\w+){0,2},\s\w{2,},\s?\w{2,}", "", text)  # Address
+    cleaned_text = re.sub(r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}", "", cleaned_text)  # Phone numbers
+    cleaned_text = re.sub(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", "", cleaned_text)  # Emails
+
+    # Extract words with 3+ characters
+    words = re.findall(r"\b[a-zA-Z#.+-]{3,}\b", cleaned_text.lower())
+
+    # Filter out common words and unwanted terms like "years"
+    filtered_keywords = {word for word in words if word not in common_words and not word.isdigit()}
     return filtered_keywords
 
 # Function to highlight only matching keywords in the resume summary
-def highlight_keywords(text, keywords):
-    """Highlights only relevant keywords in resume summaries."""
-    for keyword in sorted(keywords, key=len, reverse=True):  # Sort to avoid partial overlaps
-        text = re.sub(f"(?i)\\b{re.escape(keyword)}\\b", 
-                      rf'<span style="color:blue; font-weight:bold">{keyword}</span>', text)
-    return text
+def get_highlighted_keywords(text, keywords):
+    """Returns only the highlighted keywords from the resume summary."""
+    highlighted_keywords = []
+    # Sort keywords by length (longest first) to avoid partial overlaps
+    for keyword in sorted(keywords, key=len, reverse=True):  
+        match = re.findall(f"(?i)\\b{re.escape(keyword)}\\b", text)
+        if match:
+            highlighted_keywords.append(keyword)
+            # Apply the highlighting format with HTML
+            text = re.sub(f"(?i)\\b{re.escape(keyword)}\\b", 
+                          rf'<span style="color:blue; font-weight:bold">{keyword}</span>', text)
+    return highlighted_keywords
 
 if uploaded_files and job_description:
     st.write("🔍 **Processing Resumes...**")
@@ -56,17 +72,29 @@ if uploaded_files and job_description:
     st.subheader("🔹 Resume Ranking Results")
     st.dataframe(results_df.style.format({"Score": "{:.4f}"}))
 
-    # User selects number of top resumes to display
-    top_n = st.slider("📊 Select number of top resumes to summarize:", 1, len(ranked_resumes), 3)
+    # Ensure ranked_resumes is not empty before selecting top resumes
+    if ranked_resumes:
+        # Avoid min_value being greater than max_value when there's only one resume
+        top_n = 1 if len(ranked_resumes) == 1 else st.slider(
+            "📊 Select number of top resumes to summarize:", 
+            1, len(ranked_resumes), min(3, len(ranked_resumes))
+        )
 
-    # Summary of selected top resumes with highlighted keywords
-    st.subheader(f"🏆 Summary of Top {top_n} Resumes")
-    for i, (name, score) in enumerate(ranked_resumes[:top_n], 1):
-        summary_text = processed_resumes[name][:500]  # Limit summary length
-        highlighted_text = highlight_keywords(summary_text, job_keywords)
-        
-        st.markdown(f"**{i}. {name}** - Score: `{score:.4f}`", unsafe_allow_html=True)
-        st.markdown(f"📜 **Key Details:** {highlighted_text}...", unsafe_allow_html=True)
+        # Summary of selected top resumes
+        st.subheader(f"🏆 Summary of Top {top_n} Resume{'s' if top_n > 1 else ''}")
+
+        for i, (name, score) in enumerate(ranked_resumes[:top_n], 1):
+            resume_text = processed_resumes[name]  # Full resume text
+            highlighted_keywords = get_highlighted_keywords(resume_text, job_keywords)
+            
+
+            # Extract experience section (first 100 words)
+            experience_section = " ".join(resume_text.split()[:100])
+
+            st.markdown(f"### {i}. {name} - Score: `{score:.4f}`")
+            st.markdown(f"📜 **Experience Summary:** {experience_section}...")
+            # Display highlighted keywords
+            st.write("🔍 Highlighted Keywords:", ", ".join(highlighted_keywords))
 
     # Allow users to download results as CSV
     st.subheader("📥 Download Results")
