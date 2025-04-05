@@ -2,31 +2,32 @@ name: Python Build on macOS
 
 on:
   push:
-    branches:
-      - main  # Run on push to main branch
+    branches: [main]
   pull_request:
-    branches:
-      - main  # Run on PR to main branch
+    branches: [main]
 
 jobs:
   build:
-    runs-on: macos-latest  # Ensures the build runs on macOS
-    
+    runs-on: macos-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2  # Checks out the code from the repository
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'  # You can specify e.g., '3.11' if needed
 
-      - name: Create Virtual Environment
-        run: |
-            python3 -m venv venv
-            source venv/bin/activate
-    
       - name: Install dependencies
         run: |
-          python3 -m pip install -r requirements.txt  # Installs dependencies from your requirements.txt
-  
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+        shell: bash  # Ensure bash shell for source to work
+
       - name: Run Python Script
-        run: python3 main.py
+        run: |
+          source venv/bin/activate
+          python main.py
+        shell: bash
