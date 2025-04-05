@@ -29,5 +29,5 @@ jobs:
       - name: Run Python Script
         run: |
           source venv/bin/activate
-          python main.py
+          echo "Software Engineer skilled in Python, Java, and C++" | python3 main.py
         shell: bash
