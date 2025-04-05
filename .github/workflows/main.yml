@@ -1,0 +1,25 @@
+name: Python Build on macOS
+
+on:
+  push:
+    branches:
+      - main  # Run on push to main branch
+  pull_request:
+    branches:
+      - main  # Run on PR to main branch
+
+jobs:
+  build:
+    runs-on: macos-latest  # Ensures the build runs on macOS
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2  # Checks out the code from the repository
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt  # Installs dependencies from your requirements.txt
