@@ -22,7 +22,7 @@ murmurhash==1.0.12
 numpy==2.2.4
 packaging==24.2
 preshed==3.0.9
-pydantic==2.11.2
+pydantic==2.11.3
 pydantic_core==2.33.1
 Pygments==2.19.1
 PyPDF2==3.0.1
