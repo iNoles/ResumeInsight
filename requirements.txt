@@ -20,7 +20,7 @@ MarkupSafe==3.0.2
 mdurl==0.1.2
 murmurhash==1.0.12
 numpy==2.2.4
-packaging==24.2
+packaging==25.0
 preshed==3.0.9
 pydantic==2.11.3
 Pygments==2.19.1
