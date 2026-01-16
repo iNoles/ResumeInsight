@@ -32,7 +32,7 @@ scikit-learn==1.6.1
 scipy==1.15.3
 shellingham==1.5.4
 smart-open==7.1.0
-spacy==3.8.5
+spacy==3.8.11
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
 srsly==2.5.1
