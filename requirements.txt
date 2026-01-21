@@ -36,7 +36,7 @@ spacy==3.8.5
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
 srsly==2.5.2
-thinc==8.3.10
+thinc==9.1.1
 threadpoolctl==3.6.0
 tqdm==4.67.1
 typer==0.15.3
