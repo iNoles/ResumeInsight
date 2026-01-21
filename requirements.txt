@@ -21,7 +21,7 @@ mdurl==0.1.2
 murmurhash==1.0.15
 numpy==2.2.5
 packaging==25.0
-preshed==3.0.9
+preshed==3.0.12
 pydantic==2.11.4
 Pygments==2.19.1
 PyPDF2==3.0.1
